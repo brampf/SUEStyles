@@ -14,6 +14,21 @@ SUE stands for *S*wift*U*I *E*xtras and is a collection of small SwiftUI librari
 
 ## Gallery
 
+### TabRow
+```swift
+TabRow(items, selected: $selected) { item in
+    Label(item, systemImage: "circle")
+}
+```
+![TabRow](Doc/TabRow.png)
+
+### Tile
+```swift
+Tile("Test", hue: 0.23) {
+    Text("Hello World")
+}
+```
+![Tile](Doc/Tile.png)
 
 ## License
 
