@@ -26,12 +26,12 @@ import SwiftUI
 
 public struct TabRow<H: Hashable, V: View> : View {
     
-    var elements : [H]
+    @Binding var elements : [H]
     @Binding var selected : H?
     var label : (H) -> V
     
-    public init(_ items: [H], selected : Binding<H?> = .constant(nil), label: @escaping (H) -> V){
-        self.elements = items
+    public init(_ items: Binding<[H]>, selected : Binding<H?> = .constant(nil), label: @escaping (H) -> V){
+        self._elements = items
         self._selected = selected
         self.label = label
     }
@@ -43,8 +43,36 @@ public struct TabRow<H: Hashable, V: View> : View {
                     .onTapGesture(count: 1){
                         self.selected = element
                     }
-            }
+            }.onMove{elements.move(fromOffsets: $0, toOffset: $1)}
         }.frame(maxHeight: 25)
+    }
+    
+    func right() {
+        
+        if let sel = selected, let idx = elements.firstIndex(of: sel) {
+            if idx == elements.endIndex {
+                self.selected = elements[elements.startIndex]
+            } else {
+                self.selected = elements[idx.advanced(by: 1)]
+            }
+        }
+        
+    }
+    
+    func left() {
+        
+        if let sel = selected, let idx = elements.firstIndex(of: sel) {
+            if idx == elements.startIndex {
+                self.selected = elements[elements.endIndex]
+            } else {
+                self.selected = elements[idx.advanced(by: -1)]
+            }
+        }
+    }
+    
+    func move(idxs : IndexSet, idx: Int){
+        
+        elements.move(fromOffsets: idxs, toOffset: idx)
     }
 }
 
@@ -83,7 +111,7 @@ public struct SingleTab<H: Hashable, V: View> : View {
 
 struct SwiftUIView_Previews: PreviewProvider {
     
-    static var items = ["One","Two","Three","Four","Five","Six","Seven"]
+    @State static var items: [String] = ["One","Two","Three","Four","Five","Six","Seven"]
     
     @State static var selected : String? = "Four"
     
@@ -98,7 +126,7 @@ struct SwiftUIView_Previews: PreviewProvider {
                     Spacer()
                 }
                 
-                TabRow(items, selected: $selected) { item in
+                TabRow($items, selected: $selected) { item in
                     Label(item, systemImage: "circle")
                 }
                 VStack{
@@ -121,7 +149,7 @@ struct SwiftUIView_Previews: PreviewProvider {
                     Spacer()
                 }
                 
-                TabRow(items, selected: $selected) { item in
+                TabRow($items, selected: $selected) { item in
                     Label(item, systemImage: "circle")
                 }
                 VStack{
